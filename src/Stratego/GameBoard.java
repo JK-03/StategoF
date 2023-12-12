@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.stream.IntStream;
 
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -74,7 +75,7 @@ public class GameBoard extends JFrame {
 
     // Bandera que indica si el juego ha terminado por falta de piezas
     private boolean gameEndedOnNoPieces = false;
-    
+
     private JLabel nameLabel, rankLabel, imageLabel;
 
     // Panel para héroes y villanos eliminados con disposición de cuadrícula 10x10
@@ -83,7 +84,7 @@ public class GameBoard extends JFrame {
 
     public void close() {
         InitCharacters.getInstance().setInitCharactersNull();
-        dispose(); // Dispose of the JFrame
+        dispose();
     }
 
     List<Character> eliminatedHeroes = new ArrayList<>();
@@ -103,13 +104,12 @@ public class GameBoard extends JFrame {
                 villains.add(characters[i]);
                 villainsOriginalImages.add(characters[i].getImage().getDescription());
             }
-            // originalButtonImages[contCharacter] =
-            // characters[contCharacter].getImage().getDescription();
             contCharacter++;
         }
     }
 
-    public GameBoard(ArrayList<UsuariosInfo> listaUsuariosExterna, ArrayList<LogsInfo> listaLogsExterna, String nombreUsuario, ArrayList<UsuariosEliminadosInfo> listaUsuariosEliminadosExterna, boolean ModoJuego) {
+    public GameBoard(ArrayList<UsuariosInfo> listaUsuariosExterna, ArrayList<LogsInfo> listaLogsExterna,
+            String nombreUsuario, ArrayList<UsuariosEliminadosInfo> listaUsuariosEliminadosExterna, boolean ModoJuego) {
         heroesOriginalImages = new ArrayList<>();
         villainsOriginalImages = new ArrayList<>();
 
@@ -149,11 +149,11 @@ public class GameBoard extends JFrame {
             // manera según tu lógica
             usuario2 = ""; // O establecer algún valor por defecto
         }
-        
+
         nameLabel = new JLabel("Nombre: ");
         rankLabel = new JLabel("Rango: ");
         imageLabel = new JLabel();
-        
+
         contadoresVH();
 
         // Configuración del JFrame
@@ -170,9 +170,9 @@ public class GameBoard extends JFrame {
         // Inicialización de los botones del tablero de juego
         characters = InitCharacters.getInstance().getCharacters();
         loadOriginalButtonImages();
-        
+
         if (!modoTutorial) {
-          changeCardBackgrounds();
+            changeCardBackgrounds();
         }
 
         // confirmEndTurnHideCards.addActionListener(e -> toggleCardVisibility());
@@ -203,7 +203,7 @@ public class GameBoard extends JFrame {
         } else {
             turnLabel.setText("Turno de (Villanos): " + usuarioGPerfil);
         }
-        
+
         turnLabel.setFont(ArialT); // Cambia el estilo de letra de turnLabel
         nameLabel.setFont(Arial); // Cambia el estilo de letra de userHero
         rankLabel.setFont(Arial); // Cambia el estilo de letra de userVillain
@@ -217,11 +217,11 @@ public class GameBoard extends JFrame {
         TurnoP.add(turnLabel);
         TurnoP.add(resignGame);
         add(TurnoP, BorderLayout.NORTH);
-        
+
         southPanel.add(nameLabel);
         southPanel.add(rankLabel);
         add(southPanel, BorderLayout.SOUTH);
-        
+
         // Actualiza los paneles
         updatePanels();
 
@@ -240,28 +240,26 @@ public class GameBoard extends JFrame {
     public void updatePanels() {
         eliminatedHeroesPanel.removeAll(); // Remove all existing components from the panel
         eliminatedHeroesPanel.setBorder(BorderFactory.createLineBorder(Color.WHITE, 10));
-        heroes.stream()
-                .filter(hero -> !hero.isAlive())
-                .forEach(hero -> {
-                    int index = hero.getMyHeroCont();
-                    if (index < heroesOriginalImages.size()) {
-                        eliminatedHeroesPanel.add(new JLabel(new ImageIcon(heroesOriginalImages.get(index))));
+        IntStream.range(0, heroes.size())
+                .filter(i -> !heroes.get(i).isAlive())
+                .forEach(i -> {
+                    if (i < heroesOriginalImages.size()) {
+                        eliminatedHeroesPanel.add(new JLabel(new ImageIcon(heroesOriginalImages.get(i))));
                     }
                 });
         add(eliminatedHeroesPanel, BorderLayout.EAST);
 
         eliminatedVillainsPanel.removeAll(); // Remove all existing components from the panel
         eliminatedVillainsPanel.setBorder(BorderFactory.createLineBorder(Color.WHITE, 10));
-        villains.stream()
-                .filter(villain -> !villain.isAlive())
-                .forEach(villain -> {
-                    int index = villain.getMyVillainCont();
-                    if (index < villainsOriginalImages.size()) {
-                        eliminatedVillainsPanel.add(new JLabel(new ImageIcon(villainsOriginalImages.get(index))));
+        IntStream.range(0, villains.size())
+                .filter(i -> !villains.get(i).isAlive())
+                .forEach(i -> {
+                    if (i < villainsOriginalImages.size()) {
+                        eliminatedVillainsPanel.add(new JLabel(new ImageIcon(villainsOriginalImages.get(i))));
                     }
                 });
         add(eliminatedVillainsPanel, BorderLayout.WEST);
-        
+
         Boolean shouldEndForVillain = false;
         Boolean shouldEndForHero = false;
         List<String> excludeNames = Arrays.asList("Pumpkin", "Bomb Nova Blast", "Tierra", "Planet Tierra");
@@ -304,9 +302,9 @@ public class GameBoard extends JFrame {
 
                             // Establece el borde azul si es un héroe, rojo si no lo es
                             if (character.isHero()) {
-                                //setBorder(BorderFactory.createLineBorder(Color.BLUE, 1));
+                                // setBorder(BorderFactory.createLineBorder(Color.BLUE, 1));
                             } else {
-                                //setBorder(BorderFactory.createLineBorder(Color.RED, 1));
+                                // setBorder(BorderFactory.createLineBorder(Color.RED, 1));
                             }
 
                             // Si el personaje está seleccionado, establece el borde verde
@@ -333,7 +331,7 @@ public class GameBoard extends JFrame {
                 return new Dimension(50, 50);
             }
         };
-        
+
         // Verifica si la posición está en una zona prohibida (amarilla o magenta)
         boolean isYellowZone = (row >= 4 && row <= 5 && col >= 2 && col <= 3);
         boolean isMagentaZone = (row >= 4 && row <= 5 && col >= 6 && col <= 7);
@@ -347,7 +345,7 @@ public class GameBoard extends JFrame {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     JOptionPane.showMessageDialog(null, "¡Zona prohibida!", "Advertencia", JOptionPane.WARNING_MESSAGE);
-                    //handleCharacterDeselection(row, col);
+                    // handleCharacterDeselection(row, col);
                 }
             });
         } else {
@@ -419,7 +417,7 @@ public class GameBoard extends JFrame {
                 isHeroTurn = !isHeroTurn;
                 updateTurnLabel();
                 if (!modoTutorial) {
-                   changeCardBackgrounds();
+                    changeCardBackgrounds();
                 }
 
             } else if (isAdjacent || selectedCharacter.getPowerRating() == 2) {
@@ -434,27 +432,26 @@ public class GameBoard extends JFrame {
                         int targetRank = targetCharacter.getPowerRating();
 
                         Object[] message = {
-                            "¿Estás seguro de que quieres luchar?",
-                            "Personaje seleccionado:",
-                            new JLabel("Nombre: " + selectedCharacter.getName()),
-                            new JLabel("Rango: " + selectedRank),
-                            new JLabel(selectedImage),
-                            "Personaje objetivo:",
-                            new JLabel("Nombre: " + targetCharacter.getName()),
-                            new JLabel("Rango: " + targetRank),
-                            new JLabel(targetImage)
+                                "¿Estás seguro de que quieres luchar?",
+                                "Personaje seleccionado:",
+                                new JLabel("Nombre: " + selectedCharacter.getName()),
+                                new JLabel("Rango: " + selectedRank),
+                                new JLabel(selectedImage),
+                                "Personaje objetivo:",
+                                new JLabel("Nombre: " + targetCharacter.getName()),
+                                new JLabel("Rango: " + targetRank),
+                                new JLabel(targetImage)
                         };
 
                         int n = JOptionPane.showOptionDialog(
-                            this,
-                            message,
-                            "Confirmar lucha",
-                            JOptionPane.YES_NO_OPTION,
-                            JOptionPane.QUESTION_MESSAGE,
-                            null,
-                            options,
-                            options[1]
-                        );
+                                this,
+                                message,
+                                "Confirmar lucha",
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE,
+                                null,
+                                options,
+                                options[1]);
 
                         if (n == JOptionPane.YES_OPTION) {
                             // La lucha fue confirmada, determina el ganador
@@ -466,16 +463,14 @@ public class GameBoard extends JFrame {
                                 int winnerRank = winner.getPowerRating();
 
                                 JOptionPane.showMessageDialog(
-                                    this,
-                                    "¡La carta ganadora es:\n" +
-                                    "Nombre: " + winner.getName() +
-                                    "\nRango: " + winnerRank,
-                                    "Carta Ganadora",
-                                    JOptionPane.INFORMATION_MESSAGE,
-                                    winnerImage
-                                );
+                                        this,
+                                        "¡La carta ganadora es:\n" +
+                                                "Nombre: " + winner.getName() +
+                                                "\nRango: " + winnerRank,
+                                        "Carta Ganadora",
+                                        JOptionPane.INFORMATION_MESSAGE,
+                                        winnerImage);
                             }
-                            
 
                             if (targetCharacter.getName().equals("Tierra")) {
                                 DateTimeFormatter fechapartida = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -491,7 +486,8 @@ public class GameBoard extends JFrame {
                                 close();
                                 puntosUsuarios();
 
-                                MenuPrincipal menuPrincipal = new MenuPrincipal(this.listaUsuarios, this.listaLogs,usuarioGPerfil, this.listaUsuariosEliminados, modoTutorial);
+                                MenuPrincipal menuPrincipal = new MenuPrincipal(this.listaUsuarios, this.listaLogs,
+                                        usuarioGPerfil, this.listaUsuariosEliminados, modoTutorial);
                                 menuPrincipal.setVisible(true);
                                 this.setVisible(false);
 
@@ -643,8 +639,8 @@ public class GameBoard extends JFrame {
                                     moveCharacter(row, col);
                                     isHeroTurn = !isHeroTurn;
                                     if (!modoTutorial) {
-                                    changeCardBackgrounds();
-                                }
+                                        changeCardBackgrounds();
+                                    }
                                     updateTurnLabel();
                                 }
                             } else if (selectedCharacter.getPowerRating() < targetCharacter.getPowerRating()) {
@@ -665,9 +661,11 @@ public class GameBoard extends JFrame {
 
                                 List<Character> charactersToEliminate = new ArrayList<>();
                                 charactersToEliminate.add(targetCharacter);
-                                buttons[targetCharacter.getX()][targetCharacter.getY()].setBorder(BorderFactory.createLineBorder(Color.black, 1));
+                                buttons[targetCharacter.getX()][targetCharacter.getY()]
+                                        .setBorder(BorderFactory.createLineBorder(Color.black, 1));
                                 charactersToEliminate.add(selectedCharacter);
-                                buttons[selectedCharacter.getX()][selectedCharacter.getY()].setBorder(BorderFactory.createLineBorder(Color.black, 1));
+                                buttons[selectedCharacter.getX()][selectedCharacter.getY()]
+                                        .setBorder(BorderFactory.createLineBorder(Color.black, 1));
                                 for (Character character : charactersToEliminate) {
                                     eliminateCharacter(character, false, true);
                                 }
@@ -721,7 +719,8 @@ public class GameBoard extends JFrame {
 
             DateTimeFormatter fechapartida = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
             LocalDateTime fecha = LocalDateTime.now();
-            String mensaje = String.format("%s PERDEDOR ha perdido por no tener movimientos válidos disponibles ante %s VENCEDOR - %s",
+            String mensaje = String.format(
+                    "%s PERDEDOR ha perdido por no tener movimientos válidos disponibles ante %s VENCEDOR - %s",
                     perdedor, ganador, fechapartida.format(fecha));
 
             JOptionPane.showMessageDialog(this, mensaje);
@@ -736,7 +735,8 @@ public class GameBoard extends JFrame {
             puntosUsuarios();
             mostrarMenuPrincipal();
         } else {
-            int option = JOptionPane.showConfirmDialog(null, "¿Desea retirarse del juego?", "Confirmación", JOptionPane.YES_NO_OPTION);
+            int option = JOptionPane.showConfirmDialog(null, "¿Desea retirarse del juego?", "Confirmación",
+                    JOptionPane.YES_NO_OPTION);
 
             if (option == JOptionPane.YES_OPTION) {
                 String ganador, perdedor;
@@ -789,7 +789,8 @@ public class GameBoard extends JFrame {
     }
 
     private void mostrarMenuPrincipal() {
-        MenuPrincipal menuPrincipal = new MenuPrincipal(this.listaUsuarios, this.listaLogs, usuarioGPerfil, this.listaUsuariosEliminados, modoTutorial);
+        MenuPrincipal menuPrincipal = new MenuPrincipal(this.listaUsuarios, this.listaLogs, usuarioGPerfil,
+                this.listaUsuariosEliminados, modoTutorial);
         menuPrincipal.setVisible(true);
         this.setVisible(false);
     }
@@ -806,19 +807,21 @@ public class GameBoard extends JFrame {
 
         return true;
     }
+
     private void handleCharacterSelection(int row, int col) {
         for (Character character : characters) {
             if (character.getX() == row && character.getY() == col && character.getMoveable()) {
                 if ((character.isHero() && isHeroTurn) || (!character.isHero() && !isHeroTurn)) {
                     selectCharacter(row, col, character);
-    
+
                     // Only highlight in green all the cells he can move to if modoTutorial is true
                     if (modoTutorial) {
                         for (int i = 0; i < 10; i++) {
                             for (int j = 0; j < 10; j++) {
                                 // Check if the target cell is not in the yellow or magenta zones
                                 if (!isRestrictedZone(i, j)) {
-                                    // Use the same logic from canMoveToCell to determine if the cell should be highlighted
+                                    // Use the same logic from canMoveToCell to determine if the cell should be
+                                    // highlighted
                                     if (canMoveToCell(character.getX(), character.getY(), i, j)) {
                                         buttons[i][j].setBorder(BorderFactory.createLineBorder(Color.GREEN, 2));
                                     }
@@ -830,50 +833,54 @@ public class GameBoard extends JFrame {
                 }
             }
         }
-    } 
-
-// Helper method to check if the cell is in the restricted zone (yellow and magenta)
-private boolean isRestrictedZone(int i, int j) {
-    return (i >= 4 && i <= 5 && j >= 2 && j <= 3) || (i >= 4 && i <= 5 && j >= 6 && j <= 7);
-}
-
-private boolean canMoveToCell(int currentRow, int currentCol, int targetRow, int targetCol) {
-    boolean isEmpty = isCellEmpty(targetRow, targetCol);
-    boolean isAdjacent = (currentRow == targetRow && Math.abs(currentCol - targetCol) == 1) ||
-            (currentCol == targetCol && Math.abs(currentRow - targetRow) == 1);
-    boolean canMove = isAdjacent;
-
-    if (selectedCharacter.getPowerRating() == 2 && !isAdjacent) {
-        canMove = (currentRow == targetRow || currentCol == targetCol)
-                && isPathClear(currentRow, currentCol, targetRow, targetCol);
     }
 
-    if (!isEmpty) {
-        Character targetCharacter = getCharacterAtLocation(targetRow, targetCol);
-        if (targetCharacter != null && targetCharacter.isHero() != selectedCharacter.isHero()) {
-            canMove = true;
-        }
-    } else {
-        if (isCharacterPresent(targetRow, targetCol)) {
-            canMove = false;
-        }
+    // Helper method to check if the cell is in the restricted zone (yellow and
+    // magenta)
+    private boolean isRestrictedZone(int i, int j) {
+        return (i >= 4 && i <= 5 && j >= 2 && j <= 3) || (i >= 4 && i <= 5 && j >= 6 && j <= 7);
     }
 
-    return isEmpty && canMove;
-}
-private boolean isCharacterPresent(int row, int col) {
-    for (Character character : characters) {
-        if (character.getX() == row && character.getY() == col) {
-            return true;
-        }
-    }
-    return false;
-}
-private void handleCharacterDeselection(int row, int col, boolean makeNull) {
-    // Restaura el color del borde dependiendo de si el personaje es un héroe o no
-    // buttons[row][col].setBorder(BorderFactory.createLineBorder(selectedCharacter.isHero() ? Color.BLUE : Color.RED, 1));
+    private boolean canMoveToCell(int currentRow, int currentCol, int targetRow, int targetCol) {
+        boolean isEmpty = isCellEmpty(targetRow, targetCol);
+        boolean isAdjacent = (currentRow == targetRow && Math.abs(currentCol - targetCol) == 1) ||
+                (currentCol == targetCol && Math.abs(currentRow - targetRow) == 1);
+        boolean canMove = isAdjacent;
 
-    // Dehighlight all green cells
+        if (selectedCharacter.getPowerRating() == 2 && !isAdjacent) {
+            canMove = (currentRow == targetRow || currentCol == targetCol)
+                    && isPathClear(currentRow, currentCol, targetRow, targetCol);
+        }
+
+        if (!isEmpty) {
+            Character targetCharacter = getCharacterAtLocation(targetRow, targetCol);
+            if (targetCharacter != null && targetCharacter.isHero() != selectedCharacter.isHero()) {
+                canMove = true;
+            }
+        } else {
+            if (isCharacterPresent(targetRow, targetCol)) {
+                canMove = false;
+            }
+        }
+
+        return isEmpty && canMove;
+    }
+
+    private boolean isCharacterPresent(int row, int col) {
+        for (Character character : characters) {
+            if (character.getX() == row && character.getY() == col) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void handleCharacterDeselection(int row, int col, boolean makeNull) {
+        // Restaura el color del borde dependiendo de si el personaje es un héroe o no
+        // buttons[row][col].setBorder(BorderFactory.createLineBorder(selectedCharacter.isHero()
+        // ? Color.BLUE : Color.RED, 1));
+
+        // Dehighlight all green cells
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
                 Color borderColor = ((LineBorder) buttons[i][j].getBorder()).getLineColor();
@@ -881,12 +888,13 @@ private void handleCharacterDeselection(int row, int col, boolean makeNull) {
                     buttons[i][j].setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
                 }
             }
-        }if(makeNull){
+        }
+        if (makeNull) {
             selectedCharacter = null;
 
         }
-    // isHeroTurn = !isHeroTurn;
-}
+        // isHeroTurn = !isHeroTurn;
+    }
 
     private boolean isCellEmpty(int row, int col) {
         for (Character character : characters) {
@@ -913,7 +921,7 @@ private void handleCharacterDeselection(int row, int col, boolean makeNull) {
         handleCharacterDeselection(oldX, oldY, false);
         handleCharacterDeselection(row, col, false);
         selectedCharacter = null;
-        
+
         revalidate();
         if (!modoTutorial) {
             changeCardBackgrounds();
@@ -966,7 +974,8 @@ private void handleCharacterDeselection(int row, int col, boolean makeNull) {
 
     private void eliminateCharacter(Character character, boolean deathByBomb, boolean mutualElim) {
 
-        buttons[selectedCharacter.getX()][selectedCharacter.getY()].setBorder(BorderFactory.createLineBorder(Color.black, 1));
+        buttons[selectedCharacter.getX()][selectedCharacter.getY()]
+                .setBorder(BorderFactory.createLineBorder(Color.black, 1));
         character.setAlive(false);
         // if villain change villain character array isAlive
         character.setX(-1);
@@ -1039,7 +1048,7 @@ private void handleCharacterDeselection(int row, int col, boolean makeNull) {
             contCharacterVillain++;
         }
     }
-    
+
     public void updateInfo(Character character) {
         if (character != null) {
             nameLabel.setText("Nombre: " + character.getName());
@@ -1052,7 +1061,7 @@ private void handleCharacterDeselection(int row, int col, boolean makeNull) {
             imageLabel.setIcon(null);
         }
     }
-    
+
     private Character determineWinner(Character selectedCharacter, Character targetCharacter) {
         // Implement your logic to determine the winner
         // For example, compare their power ratings
